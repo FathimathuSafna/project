@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction App</title>
+</head>
+<body>
+    <h1>Prediction App</h1>
+    <input type="file" id="fileInput">
+    <button id="predictButton">Predict</button>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('predictButton').addEventListener('click', async function () {
+            let formData = new FormData();
+            let fileInput = document.getElementById("fileInput");
+
+            if (fileInput.files.length === 0) {
+                document.getElementById("result").innerText = "Please select an image!";
+                return;
+            }
+
+            formData.append("file", fileInput.files[0]);
+
+            try {
+                let response = await fetch("http://127.0.0.1:5000/predict", {  // ✅ Correct URL
+                    method: "POST",
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                let result = await response.json();
+                document.getElementById("result").innerText = `Prediction: ${result.prediction}`;
+            } catch (error) {
+                console.error("There was a problem with the fetch operation:", error);
+                document.getElementById("result").innerText = "Error in prediction!";
+            }
+        });
+    </script>
+</body>
+</html>
