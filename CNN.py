@@ -15,22 +15,25 @@ class FasterCNN(nn.Module):
     def __init__(self, num_classes):
         super(FasterCNN, self).__init__()
         self.conv_layers = nn.Sequential(
-            DepthwiseSeparableConv(3, 64),
-            nn.ReLU(),
-            nn.BatchNorm2d(64),
-            DepthwiseSeparableConv(64, 128),
-            nn.ReLU(),
-            nn.BatchNorm2d(128),
+            DepthwiseSeparableConv(3, 64), nn.ReLU(), nn.BatchNorm2d(64),
+            DepthwiseSeparableConv(64, 128), nn.ReLU(), nn.BatchNorm2d(128),
             nn.MaxPool2d(2, 2),
-            DepthwiseSeparableConv(128, 256),
-            nn.ReLU(),
-            nn.BatchNorm2d(256),
+
+            DepthwiseSeparableConv(128, 256), nn.ReLU(), nn.BatchNorm2d(256),
+            DepthwiseSeparableConv(256, 512), nn.ReLU(), nn.BatchNorm2d(512),
+            nn.MaxPool2d(2, 2),
+
+            DepthwiseSeparableConv(512, 512), nn.ReLU(), nn.BatchNorm2d(512),
+            DepthwiseSeparableConv(512, 1024), nn.ReLU(), nn.BatchNorm2d(1024),
             nn.MaxPool2d(2, 2),
         )
 
         self.global_avg_pool = nn.AdaptiveAvgPool2d(1)
         self.fc_layers = nn.Sequential(
-            nn.Linear(256, num_classes)
+            nn.Linear(1024, 512),
+            nn.ReLU(),
+            nn.Dropout(0.3),
+            nn.Linear(512, num_classes)
         )
 
     def forward(self, x):
