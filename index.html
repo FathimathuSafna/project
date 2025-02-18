@@ -3,29 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prediction App</title>
+    <title>Plant Leaf Disease Detection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            /* background: linear-gradient(to bottom,#93C572,white); */
+            background-image: url('https://images.unsplash.com/photo-1530049478161-0780526964f4?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTR8fHBsYW50JTIwc2hvcHxlbnwwfHwwfHx8MA%3D%3D'); 
+            background-size: cover; 
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            font-family: Arial, sans-serif;
+        }
+
+        .navbar {
+            background-color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar h1 {
+            color:  #3b7a57;
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .navbar a {
+            color:  #4CAF50;
+            text-decoration: none;
+            font-size: 18px;
+        }
+
+        .navbar a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .upload-box {
+            border: 2px dashed #4CAF50;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .upload-box img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        .upload-box input[type="file"] {
+            display: none;
+        }
+
+        .upload-box label {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .upload-box label:hover {
+            background-color: #45a049;
+        }
+
+        #predictButton {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        #predictButton:hover {
+            background-color: #45a049;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333;
+        }
+    </style>
 </head>
 <body>
-    <h1>Prediction App</h1>
-    <input type="file" id="fileInput">
-    <button id="predictButton">Predict</button>
-    <div id="result"></div>
+    <!-- Navbar -->
+    <div class="navbar">
+        <h1>Plant Leaf Disease Detection</h1>
+        <a href="about.html">About</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <h1>Plant Leaf Disease Detection</h1>
+        <div class="upload-box">
+            <label for="fileInput">Upload Image</label>
+            <input type="file" id="fileInput" accept="image/*">
+            <div id="imagePreview"></div>
+        </div>
+        <button id="predictButton">Predict Disease</button>
+        <div id="result"></div>
+    </div>
 
     <script>
+        // Display the uploaded image
+        document.getElementById('fileInput').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const imagePreview = document.getElementById('imagePreview');
+                    imagePreview.innerHTML = `<img src="${e.target.result}" alt="Uploaded Image">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Predict disease
         document.getElementById('predictButton').addEventListener('click', async function () {
-            let formData = new FormData();
-            let fileInput = document.getElementById("fileInput");
+            const fileInput = document.getElementById('fileInput');
+            const resultDiv = document.getElementById('result');
 
             if (fileInput.files.length === 0) {
-                document.getElementById("result").innerText = "Please select an image!";
+                resultDiv.innerText = "Please upload an image first!";
                 return;
             }
 
-            formData.append("file", fileInput.files[0]);
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
 
             try {
-                let response = await fetch("http://127.0.0.1:5000/predict", {  // ✅ Correct URL
-                    method: "POST",
+                const response = await fetch('http://127.0.0.1:5000/predict', {
+                    method: 'POST',
                     body: formData
                 });
 
@@ -33,11 +170,11 @@
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
 
-                let result = await response.json();
-                document.getElementById("result").innerText = `Prediction: ${result.prediction}`;
+                const result = await response.json();
+                resultDiv.innerText = `Prediction: ${result.prediction}`;
             } catch (error) {
-                console.error("There was a problem with the fetch operation:", error);
-                document.getElementById("result").innerText = "Error in prediction!";
+                console.error('Error:', error);
+                resultDiv.innerText = 'Error in prediction. Please try again.';
             }
         });
     </script>
