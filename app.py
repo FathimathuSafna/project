@@ -10,7 +10,7 @@ app = Flask(__name__)
 # Load the trained model
 num_classes = 15  
 model = FasterCNN(num_classes)  
-model.load_state_dict(torch.load("leaf-disease-detection.pth", map_location=torch.device("cpu")))
+model.load_state_dict(torch.load("best_model.pth", map_location=torch.device("cpu")))
 model.eval()
 
 # Define image preprocessing
